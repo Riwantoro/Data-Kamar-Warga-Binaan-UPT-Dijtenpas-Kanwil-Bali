@@ -5,7 +5,7 @@ import complexData from './kompleks.json';
 import './InmateSearch.css';
 
 const InmateSearch = ({ query, isLoading, handleInputChange }) => {
-  const [filters, setFilters] = useState({ wisma: '', pidana: '', negara: '', remisi: '' });
+  const [filters, setFilters] = useState({ wisma: '', negara: '' });
   const [expanded, setExpanded] = useState(null);
   // 1. Ambil Key Tanggal
   const dateKey = Object.keys(inmatesData)[0];
@@ -158,7 +158,7 @@ const InmateSearch = ({ query, isLoading, handleInputChange }) => {
   const filterOptions = useMemo(() => {
     const values = (field) => [...new Set(mergedData.map((item) => String(item[field] || '').trim()).filter(Boolean))]
       .sort((a, b) => a.localeCompare(b, 'id'));
-    return { wisma: values('wisma'), pidana: values('pidana'), negara: values('negara'), remisi: values('kategori_remisi') };
+    return { wisma: values('wisma'), negara: values('negara') };
   }, [mergedData]);
 
   // 3. Filter inmates berdasarkan query (live search) - di-defer agar typing lebih ringan
@@ -172,9 +172,7 @@ const InmateSearch = ({ query, isLoading, handleInputChange }) => {
         inmate.vonis.includes(normalizedQuery) || inmate.nik.includes(normalizedQuery) ||
         inmate.remisi.includes(normalizedQuery) || inmate.kategori_remisi.includes(normalizedQuery)) &&
         (!filters.wisma || inmate.wisma === filters.wisma.toLowerCase()) &&
-        (!filters.pidana || inmate.pidana === filters.pidana.toLowerCase()) &&
-        (!filters.negara || inmate.negara === filters.negara.toLowerCase()) &&
-        (!filters.remisi || inmate.kategori_remisi === filters.remisi.toLowerCase())
+        (!filters.negara || inmate.negara === filters.negara.toLowerCase())
       ))
       .map((inmate) => inmate.raw);
   }, [normalizedData, normalizedQuery, filters, hasActiveFilters]);
@@ -193,13 +191,13 @@ const InmateSearch = ({ query, isLoading, handleInputChange }) => {
       </div>
 
       <div className="quick-filters" aria-label="Filter cepat">
-        {['wisma', 'pidana', 'negara', 'remisi'].map((field) => (
+        {['wisma', 'negara'].map((field) => (
           <select key={field} value={filters[field]} onChange={(event) => setFilters({ ...filters, [field]: event.target.value })}>
-            <option value="">Semua {field === 'pidana' ? 'pidana' : field === 'remisi' ? 'kategori remisi' : field}</option>
+            <option value="">Semua {field}</option>
             {filterOptions[field].map((value) => <option key={value} value={value}>{value}</option>)}
           </select>
         ))}
-        {hasActiveFilters && <button className="clear-filters" onClick={() => setFilters({ wisma: '', pidana: '', negara: '', remisi: '' })}>Reset filter</button>}
+        {hasActiveFilters && <button className="clear-filters" onClick={() => setFilters({ wisma: '', negara: '' })}>Reset filter</button>}
       </div>
 
       {isLoading && (
