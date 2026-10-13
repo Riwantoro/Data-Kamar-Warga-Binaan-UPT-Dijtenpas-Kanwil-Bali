@@ -74,6 +74,8 @@ body.dark-mode .upt-status.is-ready { color: #8de0af; background: #173c2a; }
 .upt-empty-state h2 { margin: .45rem 0; color: var(--text-color); }
 .upt-empty-state > p:last-child { max-width: 540px; margin: 0 auto; color: var(--text-secondary); }
 .upt-empty-icon { display: grid; place-items: center; width: 58px; height: 58px; margin: 0 auto 1rem; color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 12%, transparent); border-radius: 18px; }
+.demo-data-notice { width: 100%; max-width: 1200px; margin: 0 auto 1rem; padding: .85rem 1rem; text-align: left; color: #67420b; background: #fff5d6; border: 1px solid #efd58a; border-radius: 12px; font: 600 .85rem/1.5 var(--font-secondary); }
+body.dark-mode .demo-data-notice { color: #f6df9e; background: #3b321c; border-color: #6f5a24; }
 
 @media (max-width: 480px) {
   .login-card { padding: 1.75rem 1.35rem; }

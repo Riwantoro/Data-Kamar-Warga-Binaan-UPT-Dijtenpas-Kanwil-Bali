@@ -58,8 +58,8 @@ const App = () => {
       lastUpdate: formatDateKey(dateKey),
     };
   }, []);
-  const totalData = selectedUpt.available ? kerobokanStats.totalData : 0;
-  const lastUpdate = selectedUpt.available ? kerobokanStats.lastUpdate : '-';
+  const totalData = kerobokanStats.totalData;
+  const lastUpdate = kerobokanStats.lastUpdate;
   const overcapacity = selectedUpt.capacity
     ? Math.max(0, ((totalData - selectedUpt.capacity) / selectedUpt.capacity) * 100)
     : null;
@@ -159,7 +159,7 @@ const App = () => {
           <div className="stat-item">
             <Shield size={20} />
             <div>
-              <span className="stat-label">Total Data</span>
+              <span className="stat-label">{selectedUpt.available ? 'Total Data' : 'Data Contoh'}</span>
               <span className="stat-value">{totalData.toLocaleString('id-ID')}</span>
             </div>
           </div>
@@ -183,7 +183,7 @@ const App = () => {
           <div className="stat-item">
             <Clock size={20} />
             <div>
-              <span className="stat-label">Last Update</span>
+              <span className="stat-label">{selectedUpt.available ? 'Last Update' : 'Tanggal Data Contoh'}</span>
               <span className="stat-value">{lastUpdate}</span>
             </div>
           </div>
@@ -204,11 +204,17 @@ const App = () => {
             }} aria-pressed={selectedUpt.id === upt.id}>
               <span className="upt-card-icon"><Building2 size={19} /></span>
               <span className="upt-card-copy"><strong>{upt.name}</strong><small><MapPin size={13} />{upt.region}</small></span>
-              <span className={`upt-status${upt.available ? ' is-ready' : ''}`}>{upt.available ? 'Data tersedia' : 'Segera tersedia'}</span>
+              <span className={`upt-status${upt.available ? ' is-ready' : ''}`}>{upt.available ? 'Data tersedia' : 'Data simulasi'}</span>
             </button>
           ))}
         </div>
       </section>
+
+      {!selectedUpt.available && (
+        <aside className="demo-data-notice" role="note">
+          <strong>Data simulasi.</strong> Data Kerobokan ditampilkan sebagai contoh untuk {selectedUpt.name}; ini bukan data resmi UPT tersebut.
+        </aside>
+      )}
 
       <div className="user-session">
         <span>Masuk sebagai <strong>{loggedInUser}</strong></span>
@@ -216,16 +222,7 @@ const App = () => {
       </div>
 
       <main>
-        {selectedUpt.available ? (
-          <InmateSearch query={query} isLoading={false} handleInputChange={handleInputChange} />
-        ) : (
-          <section className="upt-empty-state">
-            <div className="upt-empty-icon"><Building2 size={28} /></div>
-            <p className="upt-eyebrow">{selectedUpt.region}</p>
-            <h2>{selectedUpt.name}</h2>
-            <p>Data untuk UPT ini belum tersedia. Fitur pencarian akan aktif setelah sumber datanya ditambahkan.</p>
-          </section>
-        )}
+        <InmateSearch query={query} isLoading={false} handleInputChange={handleInputChange} />
       </main>
 
       <footer className="App-footer">
