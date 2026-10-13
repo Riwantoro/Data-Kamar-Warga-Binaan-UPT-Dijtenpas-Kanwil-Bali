@@ -58,6 +58,39 @@ const InmateSearch = ({ query, isLoading, handleInputChange }) => {
     return `${day} ${monthLabel} ${year}`;
   };
 
+  const getPlacementDuration = (value) => {
+    const text = String(value || '').trim();
+    const match = text.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})$/);
+    if (!match) return '';
+
+    const [, dayText, monthText, yearText] = match;
+    const year = Number(yearText.length === 2 ? `20${yearText}` : yearText);
+    const start = new Date(year, Number(monthText) - 1, Number(dayText));
+    if (start.getFullYear() !== year || start.getMonth() !== Number(monthText) - 1 || start.getDate() !== Number(dayText)) return '';
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (start > today) return '';
+
+    let years = today.getFullYear() - start.getFullYear();
+    let months = today.getMonth() - start.getMonth();
+    let days = today.getDate() - start.getDate();
+    if (days < 0) {
+      months -= 1;
+      days += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+    }
+    if (months < 0) {
+      years -= 1;
+      months += 12;
+    }
+
+    const parts = [];
+    if (years) parts.push(`${years} tahun`);
+    if (months) parts.push(`${months} bulan`);
+    if (days || parts.length === 0) parts.push(`${days} hari`);
+    return parts.join(' ');
+  };
+
   const highlightText = (text, rawQuery) => {
     if (!rawQuery || !text) return text || "";
     const safeQuery = escapeRegExp(rawQuery);
@@ -215,6 +248,7 @@ const InmateSearch = ({ query, isLoading, handleInputChange }) => {
                     <div className="result-core">
                       {isTahanan && <span className="inmate-status">Tahanan · Belum Vonis</span>}
                       {inmate.wisma && <span>🏠 {highlightText(inmate.wisma, normalizedQuery)}</span>}
+                      {inmate.tanggal_penempatan && getPlacementDuration(inmate.tanggal_penempatan) && <span>⏱️ Di kamar sejak {formatDate(inmate.tanggal_penempatan)} · {getPlacementDuration(inmate.tanggal_penempatan)}</span>}
                       {inmate.pidana && <span>⚖️ {highlightText(inmate.pidana, normalizedQuery)}</span>}
                       {inmate.tanggal_masuk && <span>📅 Masuk {formatDate(inmate.tanggal_masuk)}</span>}
                     </div>

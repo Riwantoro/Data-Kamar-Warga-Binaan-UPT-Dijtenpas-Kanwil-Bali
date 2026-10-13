@@ -1,21 +1,40 @@
 import React, { useState, useMemo } from "react";
 import './App.css';
 import InmateSearch from './components/InmateSearch';
-import { Clock, LockKeyhole, LogOut, Moon, Shield, Sun, User } from 'lucide-react';
+import { Building2, Clock, LockKeyhole, LogOut, MapPin, Moon, Shield, Sun, User } from 'lucide-react';
 import logo from './logo.png';
 import loginLogo from './assets/logo1.png';
 import inmatesData from './components/wbp.json';
 
-const USERS = ['Kamtib', 'Bimker', 'Binadik', 'KPLP', 'Umum'];
+const USERS = ['Ditjenpas Kanwil Bali'];
+const LOGIN_PASSWORD = '12345678';
+const UPTS = [
+  { id: 'kerobokan', name: 'Lapas Kelas IIA Kerobokan', region: 'Kabupaten Badung', available: true, capacity: 1470 },
+  { id: 'narkotika-bangli', name: 'Lapas Narkotika Kelas IIA Bangli', region: 'Kabupaten Bangli' },
+  { id: 'singaraja', name: 'Lapas Kelas IIB Singaraja', region: 'Kabupaten Buleleng' },
+  { id: 'karangasem', name: 'Lapas Kelas IIB Karangasem', region: 'Kabupaten Karangasem' },
+  { id: 'tabanan', name: 'Lapas Kelas IIB Tabanan', region: 'Kabupaten Tabanan' },
+  { id: 'perempuan-denpasar', name: 'Lapas Perempuan Kelas IIA Denpasar', region: 'Kota Denpasar / Badung' },
+  { id: 'negara', name: 'Rutan Kelas IIB Negara', region: 'Kabupaten Jembrana' },
+  { id: 'rutan-bangli', name: 'Rutan Kelas IIB Bangli', region: 'Kabupaten Bangli' },
+  { id: 'klungkung', name: 'Rutan Kelas IIB Klungkung', region: 'Kabupaten Klungkung' },
+  { id: 'gianyar', name: 'Rutan Kelas IIB Gianyar', region: 'Kabupaten Gianyar' },
+  { id: 'lpka-karangasem', name: 'LPKA Kelas II Karangasem', region: 'Kabupaten Karangasem' },
+];
 
 const App = () => {
   const [query, setQuery] = useState("");
   const [darkMode, setDarkMode] = useState(false);
-  const [loggedInUser, setLoggedInUser] = useState(() => localStorage.getItem('riwantoro-user'));
+  const [loggedInUser, setLoggedInUser] = useState(() => {
+    const savedUser = localStorage.getItem('riwantoro-user');
+    return USERS.find((user) => user.toLowerCase() === savedUser?.toLowerCase()) || null;
+  });
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [loginError, setLoginError] = useState('');
+  const [selectedUptId, setSelectedUptId] = useState(() => localStorage.getItem('riwantoro-upt') || 'kerobokan');
+  const selectedUpt = UPTS.find((upt) => upt.id === selectedUptId) || UPTS[0];
 
-  const { totalData, lastUpdate } = useMemo(() => {
+  const kerobokanStats = useMemo(() => {
     const dateKey = Object.keys(inmatesData)[0];
     const rawList = dateKey ? inmatesData[dateKey] : [];
     const total = Math.max((rawList?.length || 0) - 1, 0);
@@ -39,6 +58,11 @@ const App = () => {
       lastUpdate: formatDateKey(dateKey),
     };
   }, []);
+  const totalData = selectedUpt.available ? kerobokanStats.totalData : 0;
+  const lastUpdate = selectedUpt.available ? kerobokanStats.lastUpdate : '-';
+  const overcapacity = selectedUpt.capacity
+    ? Math.max(0, ((totalData - selectedUpt.capacity) / selectedUpt.capacity) * 100)
+    : null;
 
   const handleInputChange = (e) => {
     setQuery(e.target.value);
@@ -54,7 +78,7 @@ const App = () => {
     event.preventDefault();
     const username = USERS.find((user) => user.toLowerCase() === credentials.username.trim().toLowerCase());
 
-    if (!username || credentials.password !== 'Kerobokan86') {
+    if (!username || credentials.password !== LOGIN_PASSWORD) {
       setLoginError('Username atau password tidak sesuai.');
       return;
     }
@@ -75,8 +99,8 @@ const App = () => {
         <div className="login-card">
           <img src={loginLogo} alt="Riwantoro Tracker" className="login-logo" />
           <div className="login-heading">
-            <p className="login-eyebrow">Lapas Kerobokan</p>
-            <h1>Riwantoro Tracker</h1>
+            <p className="login-eyebrow">Ditjenpas Kanwil Bali</p>
+            <h1>Data Kamar Warga Binaan</h1>
             <p>Masuk untuk mengakses data warga binaan.</p>
           </div>
           <form className="login-form" onSubmit={handleLogin}>
@@ -112,8 +136,8 @@ const App = () => {
               <img src={logo} alt="Logo" className="App-logo" />
             </div>
             <div className="title-section">
-              <h1>Warga Binaan</h1>
-              <p className="subtitle">Lapas Kerobokan</p>
+              <h1>Data Kamar Warga Binaan</h1>
+              <p className="subtitle">UPT Ditjenpas Kanwil Bali</p>
             </div>
           </div>
           <button className="toggle-mode-btn" onClick={toggleDarkMode}>
@@ -142,6 +166,22 @@ const App = () => {
           </div>
           <div className="stat-divider"></div>
           <div className="stat-item">
+            <Building2 size={20} />
+            <div>
+              <span className="stat-label">Kapasitas</span>
+              <span className="stat-value">{selectedUpt.capacity ? `${selectedUpt.capacity.toLocaleString('id-ID')} orang` : 'Belum diatur'}</span>
+            </div>
+          </div>
+          <div className="stat-divider"></div>
+          <div className="stat-item">
+            <Shield size={20} />
+            <div>
+              <span className="stat-label">Overkapasitas</span>
+              <span className="stat-value">{overcapacity === null ? 'Belum diatur' : `${overcapacity.toLocaleString('id-ID', { maximumFractionDigits: 1 })}%`}</span>
+            </div>
+          </div>
+          <div className="stat-divider"></div>
+          <div className="stat-item">
             <Clock size={20} />
             <div>
               <span className="stat-label">Last Update</span>
@@ -151,24 +191,49 @@ const App = () => {
         </div>
       </header>
 
+      <section className="upt-picker" aria-labelledby="upt-picker-title">
+        <div className="upt-picker-heading">
+          <div><span className="upt-eyebrow">Pilih unit kerja</span><h2 id="upt-picker-title">Lokasi UPT</h2></div>
+          <Building2 size={24} aria-hidden="true" />
+        </div>
+        <div className="upt-grid">
+          {UPTS.map((upt) => (
+            <button key={upt.id} className={`upt-card${selectedUpt.id === upt.id ? ' is-selected' : ''}`} onClick={() => {
+              setSelectedUptId(upt.id);
+              localStorage.setItem('riwantoro-upt', upt.id);
+              setQuery('');
+            }} aria-pressed={selectedUpt.id === upt.id}>
+              <span className="upt-card-icon"><Building2 size={19} /></span>
+              <span className="upt-card-copy"><strong>{upt.name}</strong><small><MapPin size={13} />{upt.region}</small></span>
+              <span className={`upt-status${upt.available ? ' is-ready' : ''}`}>{upt.available ? 'Data tersedia' : 'Segera tersedia'}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
       <div className="user-session">
         <span>Masuk sebagai <strong>{loggedInUser}</strong></span>
         <button onClick={handleLogout}><LogOut size={16} /> Keluar</button>
       </div>
 
       <main>
-        <InmateSearch
-          query={query}
-          isLoading={false}
-          handleInputChange={handleInputChange}
-        />
+        {selectedUpt.available ? (
+          <InmateSearch query={query} isLoading={false} handleInputChange={handleInputChange} />
+        ) : (
+          <section className="upt-empty-state">
+            <div className="upt-empty-icon"><Building2 size={28} /></div>
+            <p className="upt-eyebrow">{selectedUpt.region}</p>
+            <h2>{selectedUpt.name}</h2>
+            <p>Data untuk UPT ini belum tersedia. Fitur pencarian akan aktif setelah sumber datanya ditambahkan.</p>
+          </section>
+        )}
       </main>
 
       <footer className="App-footer">
         <div className="footer-content">
           <div className="footer-badge">
             <Shield size={16} />
-            <span>Riwantoro Tracker</span>
+            <span>Data Kamar Warga Binaan</span>
           </div>
           <div className="footer-divider"></div>
           <div className="footer-info">
