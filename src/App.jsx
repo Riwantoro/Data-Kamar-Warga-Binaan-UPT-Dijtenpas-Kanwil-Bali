@@ -204,7 +204,7 @@ const App = () => {
             }} aria-pressed={selectedUpt.id === upt.id}>
               <span className="upt-card-icon"><Building2 size={19} /></span>
               <span className="upt-card-copy"><strong>{upt.name}</strong><small><MapPin size={13} />{upt.region}</small></span>
-              <span className={`upt-status${upt.available ? ' is-ready' : ''}`}>{upt.available ? 'Data tersedia' : 'Data simulasi'}</span>
+              <span className={`upt-status${upt.available ? ' is-ready' : ''}`}>{upt.available ? 'Data tersedia' : 'Contoh Kerobokan'}</span>
             </button>
           ))}
         </div>
@@ -212,7 +212,7 @@ const App = () => {
 
       {!selectedUpt.available && (
         <aside className="demo-data-notice" role="note">
-          <strong>Data simulasi.</strong> Data Kerobokan ditampilkan sebagai contoh untuk {selectedUpt.name}; ini bukan data resmi UPT tersebut.
+          <strong>Data contoh Kerobokan.</strong> Data Lapas Kerobokan ditampilkan untuk {selectedUpt.name}; ini bukan data resmi UPT tersebut.
         </aside>
       )}
 
